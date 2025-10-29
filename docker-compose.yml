@@ -1,0 +1,89 @@
+# =====================================
+# AI 心理干预预测系统 - Docker Compose 配置
+# =====================================
+
+services:
+  # ====================================
+  # 后端服务（Python + FastAPI）
+  # ====================================
+  backend:
+    # 使用官方 Python 3.9 精简镜像
+    image: python:3.9-slim
+    
+    container_name: ai-predictor-backend
+    restart: always
+    
+    ports:
+      - "3001:8000"
+    
+    # 环境变量配置（直接硬编码，确保生效）
+    environment:
+      # 数据库配置（172.17.0.1 是 Docker 默认网关，指向宿主机）
+      DB_HOST: "172.17.0.1"
+      DB_PORT: "3306"
+      DB_USER: "ai_predictor"
+      DB_PASSWORD: "xR6NaN3HC4pDRsNB"
+      DB_NAME: "ai_predictor"
+      # AI 配置
+      AI_PROVIDER: "siliconflow"
+      AI_MODEL: "Qwen/Qwen2.5-7B-Instruct"
+      AI_API_KEY: "sk-cyqaibkxefnxbrxubqrdagxwblqhsenytrwomlnseqhbmace"
+      AI_BASE_URL: "https://api.siliconflow.cn/v1"
+    
+    working_dir: /app
+    
+    # 启动命令
+    command: >
+      sh -c "
+      pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/ &&
+      pip install -r backend/requirements.txt &&
+      python3 backend/main.py
+      "
+    
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    volumes:
+      - ./backend:/app/backend:ro
+      - ./frontend:/app/frontend:ro
+      - ./logs:/app/logs
+      - pip-cache:/root/.cache/pip
+
+  # ====================================
+  # 前端服务（Nginx）
+  # ====================================
+  nginx:
+    image: nginx:alpine
+    container_name: ai-predictor-nginx
+    restart: always
+    
+    ports:
+      - "3000:80"
+      - "3443:443"
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend:/usr/share/nginx/html/frontend:ro
+    
+    depends_on:
+      - backend
+
+volumes:
+  pip-cache:
+    driver: local

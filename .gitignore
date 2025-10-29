@@ -1,0 +1,48 @@
+# 环境配置（包含敏感信息）
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# 运行时文件
+server.log
+server.pid
+*.pid
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.bak
+*.orig
+
+# Cursor编辑器
+.cursorindexingignore
+.specstory/
+
+# 非项目文档
+BLOG_POST.md
+PUSH_TO_GITHUB.md
+docs/
+
+# 备份文件
+*.backup
+.env.backup
